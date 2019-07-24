@@ -44,7 +44,7 @@ setup(
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='datum',
-    name='datum',
+    name='epicteller-datum',
     packages=find_packages(include=['datum']),
     setup_requires=setup_requirements,
     test_suite='tests',
