@@ -1,0 +1,12 @@
+pip
+bumpversion
+wheel
+watchdog
+flake8
+coverage
+Sphinx
+twine
+pytest
+pytest-cov
+pytest-pep8
+pytest-flakes
