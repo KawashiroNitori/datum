@@ -3,9 +3,10 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
+include datum/dice.lark
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif *.lark
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
