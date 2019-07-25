@@ -1,10 +1,11 @@
 language: python
 python:
-  - 3.7
+- 3.7
 install:
-  - pip install -r requirements_dev.txt
-  - make install
+- pip install -r requirements_dev.txt
+- make install
 script: make test
+after_success: coveralls
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
@@ -16,3 +17,6 @@ deploy:
     repo: epicteller/datum
     python: 3.7
     branch: master
+env:
+  global:
+    secure: 27iJOv5ZIt3zqAramQOaWSlGftFamf/bxJa5c4JPEurCasoVwHZrz6huZmIGB8Wp2FwQOH2aRlC5Jk4o8uLxyPD66PYuxCEnzx35ySi6p1wk6R0GWhMUx5FZwDmK2nNe9FSGM+qTPnweD0byvabtXpf1FtW2NMpCGhTouCFFB+KlWRivo1zCa+6N4RTUu9zlHgvcgl/tjQ4SzFuy4fEpgyIt5W2jcA+HZRlpYPgmP82eGSUhWJ9bFfVZjD5jcuFsvmnJ361miHJcwY9KrDruTLDxOl5Ln5P7LBYVwhbLwCEv16SJFBnRrVcuTIXLNEeiiiPvSTX6smfguIKOY9LxBBg8euXfwCY+F5TcQcvxny5iQu8fL5beidGHWADR33/+hG4N6G9YX9sqDCbN7fMaoh2JGzCXqEKdaEHA4kgeh6+LCo2iJWnoqmK6r+dsgGyXp8ouYGPRbYc5dCPcimePaxwIMj5clV0WC/zUM5e6noDZmtqtWFwAoXtD00f/iy7fDaSMp6lPu3cnHFAJYvbiqw351Y7TcirBjaMowoqG/Pq0+DIyZt15y+Hny/acRGvbit9hOJfvjwPPlzMI33c63ieeV07X9gRBT034Odsp9fdZwLVuaJGr7BpHdESYLggU7pmGeHHTWAl0iVapnWc0qPP1CJ9y74WvdoTxH+NGHH0=

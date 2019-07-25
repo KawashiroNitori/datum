@@ -18,6 +18,7 @@ requirements = [
 setup_requirements = []
 
 test_requirements = [
+    'coverage',
     'pytest',
     'pytest-cov',
     'pytest-flakes',
