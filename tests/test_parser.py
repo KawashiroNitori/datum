@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import patch
 
-from datum import Parser
+from datum import Parser, error
 from datum.base import Component
 from datum.error import DiceParameterInvalidError
 
@@ -219,10 +219,10 @@ class TestConstUnit:
             parse('2/((5*6)-30)').to_result()
 
     def test_dice_parameter_invalid_error(self):
-        with pytest.raises(DiceParameterInvalidError) as e:
+        with pytest.raises(error.DiceCountTooSmallError) as e:
             parse('(-2)d20').to_result()
-        assert e.value.message == "Dice parameter invalid: {'dice': -2}"
+        assert e.value.dice == -2
 
-        with pytest.raises(DiceParameterInvalidError) as e:
+        with pytest.raises(error.DiceFaceTooSmallError) as e:
             parse('d0').to_result()
-        assert e.value.message == "Dice parameter invalid: {'face': 0}"
+        assert e.value.face == 0
