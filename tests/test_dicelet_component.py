@@ -169,7 +169,7 @@ class TestDiceletRepeat:
         assert str(res) == '{2#6: 6, 6}'
 
     def test_invalid_times(self):
-        with pytest.raises(InvalidDiceletCalculationError):
+        with pytest.raises(error.DiceletOverSizeError):
             DiceletRepeat(ConstResult(10000), 5)
 
 
@@ -234,10 +234,10 @@ class TestDiceletCalculation:
 
     def test_invalid_calculation_error(self):
         com = DiceletCalculation(DiceletContainer([2, 3]), '+', DiceletContainer([1, 2, 3]))
-        with pytest.raises(InvalidDiceletCalculationError):
+        with pytest.raises(error.DiceletSizeMismatchError):
             com.to_result()
 
     def test_zero_len(self):
         com = DiceletCalculation(DiceletContainer([]), '+', ConstResult(1))
-        with pytest.raises(InvalidDiceletCalculationError):
+        with pytest.raises(error.EmptyDiceletError):
             com.to_result()

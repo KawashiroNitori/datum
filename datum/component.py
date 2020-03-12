@@ -4,8 +4,9 @@ import random
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Sized
 
+from datum import error
+from datum.const import MAX_DICE_FACE, MAX_DICE_COUNT, MAX_HIGHEST_COUNT, MAX_LOWEST_COUNT, MAX_DICELET_SIZE
 from datum.base import Component
-from datum.error import DiceParameterInvalidError, InvalidDiceletCalculationError, InvalidOperatorError
 from datum.result import ConstResult, ConstCalculationResult, DiceResult, DiceletResult, DiceletNegResult, \
     DiceletBracketResult, ConstNegResult, ConstBracketResult, DiceletCalculationResult, DiceletRepeatResult, \
     DiceletContainerResult
@@ -85,7 +86,7 @@ class ConstCalculation(ConstComponent):
         elif oper == '/':
             value = value_a / value_b
         else:
-            raise InvalidOperatorError
+            raise error.InvalidOperatorError
         return ConstCalculationResult(res_a, self._operator, res_b, value)
 
     def __str__(self):
@@ -110,14 +111,24 @@ class Dice(ConstComponent):
 
     @staticmethod
     def _validate(dice, face, highest, lowest):
-        if dice < 1 or dice > 1000:
-            raise DiceParameterInvalidError(dice=dice)
-        if face < 1 or face > 10000:
-            raise DiceParameterInvalidError(face=face)
-        if highest is not None and (highest < 1 or highest > 1000):
-            raise DiceParameterInvalidError(highest=highest)
-        if lowest is not None and (lowest < 1 or lowest > 1000):
-            raise DiceParameterInvalidError(lowest=lowest)
+        if dice < 1:
+            raise error.DiceCountTooSmallError(dice)
+        if dice > MAX_DICE_COUNT:
+            raise error.DiceCountTooBigError(dice)
+        if face < 1:
+            raise error.DiceFaceTooSmallError(face)
+        if face > MAX_DICE_FACE:
+            raise error.DiceFaceTooBigError(face)
+        if highest is not None:
+            if highest < 1:
+                raise error.DiceHighestTooSmallError(highest)
+            if highest > MAX_HIGHEST_COUNT:
+                raise error.DiceHighestTooBigError(highest)
+        if lowest is not None:
+            if lowest < 1:
+                raise error.DiceLowestTooSmallError(lowest)
+            if lowest > MAX_LOWEST_COUNT:
+                raise error.DiceLowestTooBigError(lowest)
 
     def __str__(self):
         pure = '{!s}D{!s}'.format(self._dice, self._face)
@@ -173,7 +184,7 @@ class DiceletContainer(Iterable, DiceletComponent):
 
     def to_result(self) -> DiceletContainerResult:
         return DiceletContainerResult(to_result(i) for i in self._container)
-    
+
     def __str__(self):
         pure = ', '.join(str(i) for i in self._container)
         return '{{{}}}'.format(pure)
@@ -188,7 +199,7 @@ class DiceletBracket(DiceletComponent):
 
     def __len__(self):
         return len(self._origin)
-    
+
     def __str__(self):
         return '({!s})'.format(self._origin)
 
@@ -212,8 +223,10 @@ class DiceletNeg(DiceletComponent):
 class DiceletRepeat(DiceletComponent):
     def __init__(self, times, expr):
         self._times = int(to_value(times))
-        if self._times < 1 or self._times > 100:
-            raise InvalidDiceletCalculationError
+        if self._times < 1:
+            raise error.EmptyDiceletError()
+        if self._times > MAX_DICELET_SIZE:
+            raise error.DiceletOverSizeError(self._times)
         self._expr = expr
 
     def __len__(self):
@@ -240,7 +253,7 @@ class DiceletCalculation(DiceletComponent):
 
     def _validate(self):
         if len(self._a) == 0 or len(self._b) == 0:
-            raise InvalidDiceletCalculationError
+            raise error.EmptyDiceletError()
 
     def _calc(self):
         self._validate()
@@ -275,7 +288,7 @@ class DiceletCalculation(DiceletComponent):
                 )
             )
         else:
-            raise InvalidDiceletCalculationError
+            raise error.DiceletSizeMismatchError(len(res_a), len(res_b))
 
     def to_result(self) -> DiceletCalculationResult:
         return self._calc()

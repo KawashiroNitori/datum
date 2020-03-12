@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch
 
 from datum.component import *
+from datum import error
 
 
 @patch('random.randint')
@@ -55,13 +56,13 @@ class TestDice:
         assert str(res) == '[8D6L3: 1 + 2 + 3 + 4* + 5* + 6* + 7* + 8* = 6]'
 
     def test_invalid_dices(self, _):
-        with pytest.raises(DiceParameterInvalidError):
+        with pytest.raises(error.DiceCountTooSmallError):
             Dice(0, 2).to_result()
-        with pytest.raises(DiceParameterInvalidError):
+        with pytest.raises(error.DiceFaceTooSmallError):
             Dice(1, 0).to_result()
-        with pytest.raises(DiceParameterInvalidError):
+        with pytest.raises(error.DiceLowestTooSmallError):
             Dice(30, 20, lowest=-2).to_result()
-        with pytest.raises(DiceParameterInvalidError):
+        with pytest.raises(error.DiceHighestTooBigError):
             Dice(30, 20, highest=10000).to_result()
 
 
@@ -144,5 +145,5 @@ class TestConstCalculation:
     def test_invalid_operator_error(self):
         com = ConstCalculation(ConstResult(1), '?', ConstResult(1))
         assert str(com) == '1 ? 1'
-        with pytest.raises(InvalidOperatorError):
+        with pytest.raises(error.InvalidOperatorError):
             com.to_result()
