@@ -183,6 +183,10 @@ class DiceletContainer(Iterable, DiceletComponent):
         return self._container[item]
 
     def to_result(self) -> DiceletContainerResult:
+        if self._len < 1:
+            raise error.EmptyDiceletError()
+        if self._len > MAX_DICELET_SIZE:
+            raise error.DiceletOverSizeError(self._len)
         return DiceletContainerResult(to_result(i) for i in self._container)
 
     def __str__(self):
@@ -223,16 +227,16 @@ class DiceletNeg(DiceletComponent):
 class DiceletRepeat(DiceletComponent):
     def __init__(self, times, expr):
         self._times = int(to_value(times))
-        if self._times < 1:
-            raise error.EmptyDiceletError()
-        if self._times > MAX_DICELET_SIZE:
-            raise error.DiceletOverSizeError(self._times)
         self._expr = expr
 
     def __len__(self):
         return self._times
 
     def to_result(self):
+        if self._times < 1:
+            raise error.EmptyDiceletError()
+        if self._times > MAX_DICELET_SIZE:
+            raise error.DiceletOverSizeError(self._times)
         return DiceletRepeatResult(str(self), [to_value(self._expr) for _ in range(self._times)])
 
     def __str__(self):

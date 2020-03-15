@@ -169,8 +169,9 @@ class TestDiceletRepeat:
         assert str(res) == '{2#6: 6, 6}'
 
     def test_invalid_times(self):
+        com = DiceletRepeat(ConstResult(10000), 5)
         with pytest.raises(error.DiceletOverSizeError):
-            DiceletRepeat(ConstResult(10000), 5)
+            com.to_result()
 
 
 class TestDiceletCalculation:
