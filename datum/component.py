@@ -20,6 +20,7 @@ class ConstComponent(Component):
 
 class Const(Component):
     def __init__(self, value):
+        super().__init__()
         self._value = value
 
     def to_result(self) -> ConstResult:
@@ -35,6 +36,7 @@ class Const(Component):
 
 class Percent(Component):
     def __init__(self, value):
+        super().__init__()
         self._value = value
 
     def to_result(self) -> ConstResult:
@@ -43,6 +45,7 @@ class Percent(Component):
 
 class ConstNeg(ConstComponent):
     def __init__(self, origin):
+        super().__init__()
         self._origin = origin
 
     def to_result(self) -> ConstResult:
@@ -56,6 +59,7 @@ class ConstNeg(ConstComponent):
 
 class ConstBracket(ConstComponent):
     def __init__(self, origin):
+        super().__init__()
         self._origin = origin
 
     def to_result(self) -> ConstResult:
@@ -67,6 +71,7 @@ class ConstBracket(ConstComponent):
 
 class ConstCalculation(ConstComponent):
     def __init__(self, a, operator, b):
+        super().__init__()
         self._a = a
         self._operator = operator
         self._b = b
@@ -95,6 +100,7 @@ class ConstCalculation(ConstComponent):
 
 class Dice(ConstComponent):
     def __init__(self, dice, face, *, highest=None, lowest=None):
+        super().__init__()
         self._dice = dice
         self._face = face
         self._highest = highest or None
@@ -106,7 +112,7 @@ class Dice(ConstComponent):
         highest = int(to_value(self._highest)) if self._highest is not None else None
         lowest = int(to_value(self._lowest)) if self._lowest is not None else None
         self._validate(dice, face, highest, lowest)
-        dices = [random.randint(1, face) for _ in range(dice)]
+        dices = [self._generator(face) for _ in range(dice)]
         return DiceResult(dice, face, dices, highest=highest, lowest=lowest)
 
     @staticmethod
@@ -163,6 +169,7 @@ class DiceletContainer(Iterable, DiceletComponent):
         return list(origin)
 
     def __init__(self, origin):
+        super().__init__()
         self._container = self._to_list(origin)
         self._len = self._calc_len(self._container)
 
@@ -196,6 +203,7 @@ class DiceletContainer(Iterable, DiceletComponent):
 
 class DiceletBracket(DiceletComponent):
     def __init__(self, origin: DiceletComponent):
+        super().__init__()
         self._origin = origin
 
     def to_result(self):
@@ -210,6 +218,7 @@ class DiceletBracket(DiceletComponent):
 
 class DiceletNeg(DiceletComponent):
     def __init__(self, origin: DiceletComponent):
+        super().__init__()
         self._origin = origin
 
     def to_result(self):
@@ -226,6 +235,7 @@ class DiceletNeg(DiceletComponent):
 
 class DiceletRepeat(DiceletComponent):
     def __init__(self, times, expr):
+        super().__init__()
         self._times = int(to_value(times))
         self._expr = expr
 
@@ -251,6 +261,7 @@ class DiceletCalculation(DiceletComponent):
         return DiceletContainer(origin)
 
     def __init__(self, a, operator, b):
+        super().__init__()
         self._a = self._to_container(a)
         self._operator = operator
         self._b = self._to_container(b)

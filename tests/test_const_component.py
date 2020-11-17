@@ -20,6 +20,14 @@ class TestDice:
         assert res.value == 3
         assert str(res) == '[1D6: 3]'
 
+    def test_dice_with_injected_generator(self, mocker):
+        dice = Dice(1, 20)
+        dice.set_dice_generator(lambda x: 21)
+        res = dice.to_result()
+        mocker.assert_not_called()
+        assert res.value == 21
+        assert str(res) == '[1D20: 21]'
+
     def test_multiple_simple(self, mocker):
         mocker.return_value = 13
         dice = Dice(4, 20)
