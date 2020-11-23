@@ -12,7 +12,7 @@ class Result:
 
 class Component:
     def __init__(self):
-        self._generator = self._generator
+        self._generator = self._default_generator
 
     def to_result(self) -> Result:
         raise NotImplementedError  # pragma: no cover
@@ -21,5 +21,5 @@ class Component:
         self._generator = generator
 
     @staticmethod
-    def _generator(face: int) -> int:
+    def _default_generator(face: int) -> int:
         return random.randint(1, face)

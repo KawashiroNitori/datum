@@ -160,6 +160,15 @@ class TestDiceletRepeat:
         assert res.value == (36, 36, 36)
         assert str(res) == '{3#4D20: 36, 36, 36}'
 
+    def test_dice_with_custom_generator(self):
+        com = DiceletRepeat(3, Dice(4, 20))
+        assert len(com) == 3
+        assert str(com) == '3#4D20'
+        com.set_dice_generator(lambda face: 9)
+        res = com.to_result()
+        assert res.value == (36, 36, 36)
+        assert str(res) == '{3#4D20: 36, 36, 36}'
+
     def test_times_is_expr(self):
         com = DiceletRepeat(ConstBracket(ConstCalculation(ConstResult(3), '-', ConstResult(1))), ConstResult(6))
         assert len(com) == 2
@@ -229,6 +238,15 @@ class TestDiceletCalculation:
         com = DiceletCalculation(ConstResult(5), '+', DiceletRepeat(3, Dice(1, 20)))
         assert len(com) == 3
         assert str(com) == '{5} + 3#1D20'
+        res = com.to_result()
+        assert res.value == (24, 24, 24)
+        assert str(res) == '{5} + {3#1D20: 19, 19, 19}'
+
+    def test_const_add_repeat_with_custom_generator(self):
+        com = DiceletCalculation(ConstResult(5), '+', DiceletRepeat(3, Dice(1, 20)))
+        assert len(com) == 3
+        assert str(com) == '{5} + 3#1D20'
+        com.set_dice_generator(lambda face: 19)
         res = com.to_result()
         assert res.value == (24, 24, 24)
         assert str(res) == '{5} + {3#1D20: 19, 19, 19}'

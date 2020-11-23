@@ -144,6 +144,14 @@ class TestConstCalculation:
         assert res.value == 1934
         assert str(res) == '1919 + [1D20: 15]'
 
+    def test_const_add_dice_with_custom_generator(self):
+        com = ConstCalculation(ConstResult(1919), '+', Dice(1, 20))
+        assert str(com) == '1919 + 1D20'
+        com.set_dice_generator(lambda face: 15)
+        res = com.to_result()
+        assert res.value == 1934
+        assert str(res) == '1919 + [1D20: 15]'
+
     def test_zero_division_error(self):
         com = ConstCalculation(ConstResult(1), '/', ConstBracket(ConstCalculation(1, '-', 1)))
         assert str(com) == '1 / (1 - 1)'

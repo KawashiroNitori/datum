@@ -3,6 +3,7 @@
 import random
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Sized
+from typing import Callable, Optional, Union, List
 
 from datum import error
 from datum.const import MAX_DICE_FACE, MAX_DICE_COUNT, MAX_HIGHEST_COUNT, MAX_LOWEST_COUNT, MAX_DICELET_SIZE
@@ -68,9 +69,14 @@ class ConstBracket(ConstComponent):
     def __str__(self):
         return '({!s})'.format(self._origin)
 
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(ConstBracket, self).set_dice_generator(generator)
+        if isinstance(self._origin, Component):
+            self._origin.set_dice_generator(generator)
+
 
 class ConstCalculation(ConstComponent):
-    def __init__(self, a, operator, b):
+    def __init__(self, a, operator: str, b):
         super().__init__()
         self._a = a
         self._operator = operator
@@ -97,9 +103,17 @@ class ConstCalculation(ConstComponent):
     def __str__(self):
         return '{!s} {} {!s}'.format(self._a, self._operator, self._b)
 
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(ConstCalculation, self).set_dice_generator(generator)
+        if isinstance(self._a, Component):
+            self._a.set_dice_generator(generator)
+        if isinstance(self._b, Component):
+            self._b.set_dice_generator(generator)
+
 
 class Dice(ConstComponent):
-    def __init__(self, dice, face, *, highest=None, lowest=None):
+    def __init__(self, dice, face, *,
+                 highest = None, lowest = None):
         super().__init__()
         self._dice = dice
         self._face = face
@@ -144,6 +158,17 @@ class Dice(ConstComponent):
             return '{}L{!s}'.format(pure, self._lowest)
         return pure
 
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(Dice, self).set_dice_generator(generator)
+        if isinstance(self._dice, Component):
+            self._dice.set_dice_generator(generator)
+        if isinstance(self._face, Component):
+            self._face.set_dice_generator(generator)
+        if self._highest and isinstance(self._highest, Component):
+            self._highest.set_dice_generator(generator)
+        if self._lowest and isinstance(self._lowest, Component):
+            self._lowest.set_dice_generator(generator)
+
 
 class DiceletComponent(ABC, Sized, Component):
     @abstractmethod
@@ -170,7 +195,7 @@ class DiceletContainer(Iterable, DiceletComponent):
 
     def __init__(self, origin):
         super().__init__()
-        self._container = self._to_list(origin)
+        self._container: List = self._to_list(origin)
         self._len = self._calc_len(self._container)
 
     def __iadd__(self, other):
@@ -200,6 +225,12 @@ class DiceletContainer(Iterable, DiceletComponent):
         pure = ', '.join(str(i) for i in self._container)
         return '{{{}}}'.format(pure)
 
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(DiceletContainer, self).set_dice_generator(generator)
+        for i in self._container:
+            if isinstance(i, Component):
+                i.set_dice_generator(generator)
+
 
 class DiceletBracket(DiceletComponent):
     def __init__(self, origin: DiceletComponent):
@@ -214,6 +245,10 @@ class DiceletBracket(DiceletComponent):
 
     def __str__(self):
         return '({!s})'.format(self._origin)
+
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(DiceletBracket, self).set_dice_generator(generator)
+        self._origin.set_dice_generator(generator)
 
 
 class DiceletNeg(DiceletComponent):
@@ -231,6 +266,10 @@ class DiceletNeg(DiceletComponent):
 
     def __str__(self):
         return '-{!s}'.format(self._origin)
+
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(DiceletNeg, self).set_dice_generator(generator)
+        self._origin.set_dice_generator(generator)
 
 
 class DiceletRepeat(DiceletComponent):
@@ -252,6 +291,11 @@ class DiceletRepeat(DiceletComponent):
     def __str__(self):
         return '{}#{!s}'.format(self._times, self._expr)
 
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(DiceletRepeat, self).set_dice_generator(generator)
+        if isinstance(self._expr, Component):
+            self._expr.set_dice_generator(generator)
+
 
 class DiceletCalculation(DiceletComponent):
     @staticmethod
@@ -260,7 +304,7 @@ class DiceletCalculation(DiceletComponent):
             return origin
         return DiceletContainer(origin)
 
-    def __init__(self, a, operator, b):
+    def __init__(self, a, operator: str, b):
         super().__init__()
         self._a = self._to_container(a)
         self._operator = operator
@@ -313,3 +357,10 @@ class DiceletCalculation(DiceletComponent):
 
     def __str__(self):
         return '{!s} {} {!s}'.format(self._a, self._operator, self._b)
+
+    def set_dice_generator(self, generator: Callable[[int], int]) -> None:
+        super(DiceletCalculation, self).set_dice_generator(generator)
+        if isinstance(self._a, Component):
+            self._a.set_dice_generator(generator)
+        if isinstance(self._b, Component):
+            self._b.set_dice_generator(generator)
